@@ -31,6 +31,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
 
 #include "snd_local.h"
 #include "client.h"
+#include "snd_dmahd.h"
 
 void S_Play_f(void);
 void S_SoundList_f(void);
@@ -61,14 +62,14 @@ channel_t   s_channels[MAX_CHANNELS];
 channel_t   loop_channels[MAX_CHANNELS];
 int			numLoopChannels;
 
-static int	s_soundStarted;
-static		qboolean	s_soundMuted;
+int	s_soundStarted;
+qboolean	s_soundMuted;
 
 dma_t		dma;
 
-static int			listener_number;
-static vec3_t		listener_origin;
-static vec3_t		listener_axis[3];
+int			listener_number;
+vec3_t		listener_origin;
+vec3_t		listener_axis[3];
 
 int			s_soundtime;		// sample PAIRS
 int   		s_paintedtime; 		// sample PAIRS
@@ -92,7 +93,7 @@ cvar_t		*s_musicVolume;
 cvar_t		*s_separation;
 cvar_t		*s_doppler;
 
-static loopSound_t		loopSounds[MAX_GENTITIES];
+loopSound_t		loopSounds[MAX_GENTITIES];
 static	channel_t		*freelist = NULL;
 
 int						s_rawend;
@@ -106,6 +107,12 @@ portable_samplepair_t	s_rawsamples[MAX_RAW_SAMPLES];
 
 void S_SoundInfo_f(void) {	
 	Com_Printf("----- Sound Info -----\n" );
+#ifndef NO_DMAHD
+	if ( dmaHD_Enabled() ) {
+		dmaHD_SoundInfo();
+		return;
+	}
+#endif
 	if (!s_soundStarted) {
 		Com_Printf ("sound system not started\n");
 	} else {
@@ -168,6 +175,10 @@ void S_Init( void ) {
 
 	r = SNDDMA_Init();
 	Com_Printf("------------------------------------\n");
+
+#ifndef NO_DMAHD
+	if (dmaHD_Enabled()) dmaHD_Init();
+#endif
 
 	if ( r ) {
 		s_soundStarted = 1;
@@ -1073,6 +1084,13 @@ void S_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int inwat
 	channel_t	*ch;
 	vec3_t		origin;
 
+#ifndef NO_DMAHD
+	if ( dmaHD_Enabled() ) {
+		dmaHD_Respatialize( entityNum, head, axis, inwater );
+		return;
+	}
+#endif
+
 	if ( !s_soundStarted || s_soundMuted ) {
 		return;
 	}
@@ -1157,6 +1175,13 @@ void S_Update( void ) {
 	int			i;
 	int			total;
 	channel_t	*ch;
+
+#ifndef NO_DMAHD
+	if ( dmaHD_Enabled() ) {
+		dmaHD_Update();
+		return;
+	}
+#endif
 
 	if ( !s_soundStarted || s_soundMuted ) {
 		Com_DPrintf ("not started or muted\n");
@@ -1342,6 +1367,13 @@ void S_SoundList_f( void ) {
 	int		size, total;
 	char	type[4][16];
 	char	mem[2][16];
+
+#ifndef NO_DMAHD
+	if ( dmaHD_Enabled() ) {
+		dmaHD_SoundList();
+		return;
+	}
+#endif
 
 	strcpy(type[0], "16bit");
 	strcpy(type[1], "adpcm");
@@ -1551,7 +1583,7 @@ void S_UpdateBackgroundTrack( void ) {
 		bufferSamples = MAX_RAW_SAMPLES - (s_rawend - s_soundtime);
 
 		// decide how much data needs to be read from the file
-		fileSamples = bufferSamples * s_backgroundInfo.rate / dma.speed;
+		fileSamples = (bufferSamples * dma.speed) / s_backgroundInfo.rate;
 
 		// don't try and read past the end of the file
 		if ( fileSamples > s_backgroundSamples ) {

@@ -30,6 +30,7 @@ Foundation, Inc., 51 Franklin St, Fifth Floor, Boston, MA  02110-1301  USA
  *****************************************************************************/
 
 #include "snd_local.h"
+#include "snd_dmahd.h"
 
 #define DEF_COMSOUNDMEGS "8"
 
@@ -333,6 +334,10 @@ qboolean S_LoadSound( sfx_t *sfx )
 	wavinfo_t	info;
 	int		size;
 
+/*#ifndef NO_DMAHD
+	if (dmaHD_Enabled()) return dmaHD_LoadSound(sfx);
+#endif*/
+
 	// player specific sounds are never directly loaded
 	if ( sfx->soundName[0] == '*') {
 		return qfalse;
@@ -369,29 +374,28 @@ qboolean S_LoadSound( sfx_t *sfx )
 	// manager to do the right thing for us and page
 	// sound in as needed
 
-	if( sfx->soundCompressed == qtrue) {
-		sfx->soundCompressionMethod = 1;
-		sfx->soundData = NULL;
-		sfx->soundLength = ResampleSfxRaw( samples, info.rate, info.width, info.samples, (data + info.dataofs) );
-		S_AdpcmEncodeSound(sfx, samples);
-#if 0
-	} else if (info.samples>(SND_CHUNK_SIZE*16) && info.width >1) {
-		sfx->soundCompressionMethod = 3;
-		sfx->soundData = NULL;
-		sfx->soundLength = ResampleSfxRaw( samples, info.rate, info.width, info.samples, (data + info.dataofs) );
-		encodeMuLaw( sfx, samples);
-	} else if (info.samples>(SND_CHUNK_SIZE*6400) && info.width >1) {
-		sfx->soundCompressionMethod = 2;
-		sfx->soundData = NULL;
-		sfx->soundLength = ResampleSfxRaw( samples, info.rate, info.width, info.samples, (data + info.dataofs) );
-		encodeWavelet( sfx, samples);
-#endif
-	} else {
+#ifndef NO_DMAHD
+	if ( dmaHD_Enabled() ) {
 		sfx->soundCompressionMethod = 0;
 		sfx->soundLength = info.samples;
 		sfx->soundData = NULL;
-		ResampleSfx( sfx, info.rate, info.width, data + info.dataofs, qfalse );
+		dmaHD_ResampleSfx(sfx, info.rate, info.width, data + info.dataofs, qfalse);
+	} else {
+#endif
+		if( sfx->soundCompressed == qtrue) {
+			sfx->soundCompressionMethod = 1;
+			sfx->soundData = NULL;
+			sfx->soundLength = ResampleSfxRaw( samples, info.rate, info.width, info.samples, (data + info.dataofs) );
+			S_AdpcmEncodeSound(sfx, samples);
+		} else {
+			sfx->soundCompressionMethod = 0;
+			sfx->soundLength = info.samples;
+			sfx->soundData = NULL;
+			ResampleSfx( sfx, info.rate, info.width, data + info.dataofs, qfalse );
+		}
+#ifndef NO_DMAHD
 	}
+#endif
 	
 	Hunk_FreeTempMemory(samples);
 	FS_FreeFile( data );

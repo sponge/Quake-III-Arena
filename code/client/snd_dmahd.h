@@ -8,9 +8,15 @@
 
 #ifndef NO_DMAHD
 
-qboolean dmaHD_LoadSound(sfx_t *sfx);
+//qboolean dmaHD_LoadSound(sfx_t *sfx);
 qboolean dmaHD_Enabled();
-qboolean dmaHD_Init(soundInterface_t *si);
+qboolean dmaHD_Init();
+void dmaHD_ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboolean compressed);
+
+void dmaHD_SoundInfo(void);
+void dmaHD_Respatialize( int entityNum, const vec3_t head, vec3_t axis[3], int inwater );
+void dmaHD_Update( void );
+void dmaHD_SoundList(void);
 
 #endif
 

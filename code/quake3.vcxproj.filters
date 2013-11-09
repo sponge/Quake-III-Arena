@@ -165,6 +165,9 @@
     <ClCompile Include="win32\win_wndproc.c">
       <Filter>Source Files</Filter>
     </ClCompile>
+    <ClCompile Include="client\snd_dmahd.c">
+      <Filter>Source Files</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="game\bg_public.h">
@@ -244,6 +247,9 @@
     </ClInclude>
     <ClInclude Include="win32\win_local.h">
       <Filter>Header Files</Filter>
+    </ClInclude>
+    <ClInclude Include="client\snd_dmahd.h">
+      <Filter>Source Files</Filter>
     </ClInclude>
   </ItemGroup>
   <ItemGroup>

@@ -126,7 +126,7 @@ by p5yc0runn3r founder of Armed, Pissed & Dangerous clan.
 
 #include "client.h"
 #include "snd_local.h"
-#include "snd_codec.h"
+//#include "snd_codec.h"
 #include "snd_dmahd.h"
 
 void dmaHD_Update_Mix( void );
@@ -393,7 +393,7 @@ dmaHD_ResampleSfx
 resample / decimate to the current source rate
 ================
 */
-static void dmaHD_ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboolean compressed) 
+void dmaHD_ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, qboolean compressed) 
 {
 	short* buffer;
 	int (*dmaHD_GetSampleRaw)(int, int, byte*) = 
@@ -457,7 +457,7 @@ static void dmaHD_ResampleSfx( sfx_t *sfx, int inrate, int inwidth, byte *data, 
 
 //=============================================================================
 
-qboolean dmaHD_LoadSound(sfx_t *sfx)
+/*qboolean dmaHD_LoadSound(sfx_t *sfx)
 {
 	byte *data;
 	snd_info_t info;
@@ -488,7 +488,7 @@ qboolean dmaHD_LoadSound(sfx_t *sfx)
 	Z_Free(data);
 
 	return qtrue;
-}
+}*/
 
 /*
 ===============================================================================
@@ -784,8 +784,6 @@ void dmaHD_TransferPaintBuffer(int endtime)
 
 		ls_paintedtime += (snd_linear_count>>1);
 
-		if( CL_VideoRecording( ) )
-			CL_WriteAVIAudioFrame( (byte *)snd_out, snd_linear_count << 1 );
 	}
 }
 
@@ -1469,9 +1467,9 @@ void dmaHD_SoundList(void)
 dmaHD_Init
 ================
 */
-qboolean dmaHD_Init(soundInterface_t *si) 
+qboolean dmaHD_Init() 
 {
-	if (!si) return qfalse;
+	//if (!si) return qfalse;
 
 	// Return if not enabled.
 	if (!dmaHD_Enabled()) return qtrue;
@@ -1520,10 +1518,10 @@ qboolean dmaHD_Init(soundInterface_t *si)
 	dmaHD_InitTables();
 
 	// Override function pointers to dmaHD version, the rest keep base.
-	si->SoundInfo = dmaHD_SoundInfo;
-	si->Respatialize = dmaHD_Respatialize;
-	si->Update = dmaHD_Update;
-	si->SoundList = dmaHD_SoundList;
+	//si->SoundInfo = dmaHD_SoundInfo;
+	//si->Respatialize = dmaHD_Respatialize;
+	//si->Update = dmaHD_Update;
+	//si->SoundList = dmaHD_SoundList;
 
 	return qtrue;
 }

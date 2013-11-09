@@ -276,7 +276,7 @@
     <ClCompile>
       <Optimization>MaxSpeed</Optimization>
       <InlineFunctionExpansion>AnySuitable</InlineFunctionExpansion>
-      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
+      <PreprocessorDefinitions>WIN32;NDEBUG;_WINDOWS;_CRT_SECURE_NO_WARNINGS;%(PreprocessorDefinitions)</PreprocessorDefinitions>
       <StringPooling>true</StringPooling>
       <RuntimeLibrary>MultiThreaded</RuntimeLibrary>
       <FunctionLevelLinking>true</FunctionLevelLinking>
@@ -575,6 +575,7 @@
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Release|Win32'">MaxSpeed</Optimization>
       <Optimization Condition="'$(Configuration)|$(Platform)'=='vector|Win32'">MaxSpeed</Optimization>
     </ClCompile>
+    <ClCompile Include="client\snd_dmahd.c" />
     <ClCompile Include="qcommon\cm_load.c">
       <Optimization Condition="'$(Configuration)|$(Platform)'=='Debug TA DEMO|Win32'">Disabled</Optimization>
       <BrowseInformation Condition="'$(Configuration)|$(Platform)'=='Debug TA DEMO|Win32'">true</BrowseInformation>
@@ -1097,6 +1098,7 @@
     </ClCompile>
   </ItemGroup>
   <ItemGroup>
+    <ClInclude Include="client\snd_dmahd.h" />
     <ClInclude Include="game\bg_public.h" />
     <ClInclude Include="cgame\cg_public.h" />
     <ClInclude Include="client\client.h" />
